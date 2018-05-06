@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="bottom"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!--Root container-->
+    <RelativeLayout
+        android:id="@+id/exit_root_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="UselessParent">
+
+        <!--View while view is collapsed-->
+        <RelativeLayout
+            android:id="@+id/exit_collapse_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!--Icon of floating widget -->
+            <!--<pl.droidsonroids.gif.GifImageView-->
+            <!--android:id="@+id/GifImageView"-->
+            <!--android:layout_width="100dp"-->
+            <!--android:layout_height="100dp"-->
+            <!--android:src="@drawable/smooch"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--/>-->
+
+            <!--<com.example.myapplication.GifImageView-->
+            <!--android:id="@+id/GifImageView"-->
+            <!--android:layout_width="60dp"-->
+            <!--android:layout_height="60dp"-->
+
+            <!--/>-->
+
+
+            <!--<ImageView
+                android:id="@+id/collapsed_iv"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_android_circle"
+                tools:ignore="ContentDescription"/>-->
+
+            <!--Close button-->
+            <ImageView
+                android:id="@+id/exit_close_btn"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+
+                android:layout_alignParentTop="true"
+                android:foregroundGravity="bottom"
+                android:src="@drawable/ic_close"
+                tools:ignore="ContentDescription" />
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+
+
+</FrameLayout>
