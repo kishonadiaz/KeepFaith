@@ -41,6 +41,7 @@ import pl.droidsonroids.gif.MultiCallback;
 
 /**
  * Created by simplecast on 2/4/2018.
+ * Code has example code from androidhive.
  */
 
 public class FloatingViewService extends Service {
