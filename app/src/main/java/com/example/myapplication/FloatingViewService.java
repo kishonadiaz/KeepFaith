@@ -123,14 +123,19 @@ public class FloatingViewService extends Service {
         webView.getSettings().setJavaScriptEnabled(true);
 
 
+
+
+
         ViewGroup.LayoutParams ss = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         webView.setLayoutParams(ss);
         String htmlData = "";
         htmlData = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>" + htmlData;
+
+        String html = "<!doctype html><html><head><style>body{background:darkgray}</style></head><body><img src='ic_rotating_earth.gif' style='width:100%;  ' /></body></html>";
         //webView.loadDataWithBaseURL("file:///android_asset/","<style>body{background:green;}</style>", "text/html","UTF-8",null);
 
 
-        webView.loadDataWithBaseURL("file:///android_res/drawable/",htmlData+"<img src='ic_rotating_earth.gif'/>","text/html","utf-8",null);
+        webView.loadDataWithBaseURL("file:///android_res/drawable/",html,"text/html","utf-8",null);
         //webView.setTouchscreenBlocksFocus(true);
         //webView.loadDataWithBaseURL("file:///android_asset/",htmlData, "text/html","UTF-8",null);
         linearLayout.addView(webView);
@@ -272,14 +277,14 @@ public class FloatingViewService extends Service {
                                 //and expanded view will become visible.
                                 collapsedView.setVisibility(View.GONE);
 
-                                RelativeLayout.LayoutParams rr = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+                                /*RelativeLayout.LayoutParams rr = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                                 rr.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-                                rr.width = RelativeLayout.LayoutParams.MATCH_PARENT;
-                                FrameLayout.LayoutParams ff = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-                                ff.width = FrameLayout.LayoutParams.MATCH_PARENT;
+                                rr.width = RelativeLayout.LayoutParams.MATCH_PARENT;*/
+                                //FrameLayout.LayoutParams ff = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+                                //ff.width = FrameLayout.LayoutParams.MATCH_PARENT;
 
 
-                                expandedView.setLayoutParams(rr);
+                                //expandedView.setLayoutParams(rr);
                                 expandedView.setVisibility(View.VISIBLE);
                             }
                         }
