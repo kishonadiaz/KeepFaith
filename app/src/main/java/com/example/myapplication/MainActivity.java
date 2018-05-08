@@ -32,7 +32,7 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener,userPost.OnFragmentInteractionListener,topPost.OnFragmentInteractionListener,
-writePost.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener{
+writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener{
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     private static final int CHANNEL_ID = 001;
     private Activity activity;
@@ -101,6 +101,7 @@ writePost.OnFragmentInteractionListener,preferences.OnFragmentInteractionListene
         tabLayout.addTab(tabLayout.newTab());
         tabLayout.addTab(tabLayout.newTab());
         tabLayout.addTab(tabLayout.newTab());
+        tabLayout.addTab(tabLayout.newTab());
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         //Initializing viewPager
@@ -113,6 +114,7 @@ writePost.OnFragmentInteractionListener,preferences.OnFragmentInteractionListene
         viewPager.setAdapter(adapter);
 
 
+        viewPager.arrowScroll(View.FOCUS_RIGHT);
         viewPager.arrowScroll(View.FOCUS_RIGHT);
 
         //Adding onTabSelectedListener to swipe views

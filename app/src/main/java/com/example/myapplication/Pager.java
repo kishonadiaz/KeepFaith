@@ -33,6 +33,9 @@ public class Pager extends FragmentStatePagerAdapter {
             case 3:
                 preferences tab4 = new preferences();
                 return tab4;
+            case 4:
+                fav tab5 = new fav();
+                return tab5;
             default:
                 return null;
         }
@@ -48,13 +51,15 @@ public class Pager extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return "Tab 1";
+                return "Users";
             case 1:
-                return "Tab 2";
+                return "Top Post";
             case 2:
-                return "Tab 3";
+                return "Post";
             case 3:
-                return "Tab 4";
+                return "Fav";
+            case 4:
+                return "Pref";
         }
         return null;
     }
