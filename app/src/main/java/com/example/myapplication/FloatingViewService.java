@@ -50,6 +50,9 @@ public class FloatingViewService extends Service {
     ActivityManager activityManager;
     MotionEvent motionEvent;
     WindowManager.LayoutParams params;
+    int favcounter = 0;
+    boolean isfav = false;
+    boolean islike = false;
 
     public FloatingViewService() {
     }
@@ -73,7 +76,6 @@ public class FloatingViewService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        int[]d = {0};
 
        // retainer s = new retainer(1);
 //        InterfaceClass.retainer retainer = new InterfaceClass.retainer(d);
@@ -140,24 +142,7 @@ public class FloatingViewService extends Service {
         //webView.loadDataWithBaseURL("file:///android_asset/",htmlData, "text/html","UTF-8",null);
         linearLayout.addView(webView);
 
-        /*try {
-            MultiCallback multiCallback =new MultiCallback();
-            ImageView i = new ImageView(getBaseContext());
-            GifDrawable gifDrawable = new GifDrawable(getResources(),R.drawable.ic_rotating_earth);
 
-            i.setImageDrawable(gifDrawable);
-
-            i.setLayoutParams(layoutParams);
-            multiCallback.addView(i);
-
-            gifDrawable.setCallback(multiCallback);
-            Toast.makeText(this, "fadfa", Toast.LENGTH_LONG).show();
-            linearLayout.addView(i);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "fadfaaa", Toast.LENGTH_LONG).show();
-        }*/
 
 
         //linearLayout.addView(text);
@@ -193,39 +178,50 @@ public class FloatingViewService extends Service {
 
         //Set the view while floating view is expanded.
         //Set the play button.
-     /*   ImageView playButton = (ImageView) mFloatingView.findViewById(R.id.play_btn);
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(FloatingViewService.this, "Playing the song.", Toast.LENGTH_LONG).show();
-            }
-        });*/
 
-        //Set the next button.
-       /* ImageView nextButton = (ImageView) mFloatingView.findViewById(R.id.next_btn);
-        nextButton.setOnClickListener(new View.OnClickListener() {
+        final ImageView favButton = (ImageView) mFloatingView.findViewById(R.id.favicon);
+        favButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(FloatingViewService.this, "Playing next song.", Toast.LENGTH_LONG).show();
+            public void onClick(View view) {
+                if(!isfav){
+                    favButton.setImageResource(R.drawable.fav_highlighted);
+                    isfav = true;
+                }else{
+                    favButton.setImageResource(R.drawable.fav);
+                    isfav = false;
+                }
+                favcounter++;
             }
-        });*/
+        });
 
-        //Set the pause button.
-       /* ImageView prevButton = (ImageView) mFloatingView.findViewById(R.id.prev_btn);
-        prevButton.setOnClickListener(new View.OnClickListener() {
+        final ImageView likeButton = (ImageView) mFloatingView.findViewById(R.id.likeicon);
+        likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(FloatingViewService.this, "Playing previous song.", Toast.LENGTH_LONG).show();
+            public void onClick(View view) {
+                if(!islike){
+                    likeButton.setImageResource(R.drawable.like_highlighted);
+                    islike = true;
+                }else{
+                    likeButton.setImageResource(R.drawable.like_unhighlighted);
+                    islike = false;
+                }
+
             }
-        });*/
+        });
+
+
+
 
         //Set the close button
         ImageView closeButton = (ImageView) mFloatingView.findViewById(R.id.close_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                collapsedView.setVisibility(View.VISIBLE);
+                /*collapsedView.setVisibility(View.VISIBLE);
+                expandedView.setVisibility(View.GONE);*/
+                collapsedView.setVisibility(View.GONE);
                 expandedView.setVisibility(View.GONE);
+                stopSelf();
             }
         });
 

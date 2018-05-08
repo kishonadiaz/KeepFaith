@@ -13,20 +13,35 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener,userPost.OnFragmentInteractionListener,topPost.OnFragmentInteractionListener,
+writePost.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener{
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     private static final int CHANNEL_ID = 001;
     private Activity activity;
+
+    private TabLayout tabLayout;
+
+    //This is our viewPager
+    private ViewPager viewPager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,18 +61,18 @@ public class MainActivity extends AppCompatActivity {
                     Uri.parse("package:" + getPackageName()));
             startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
         } else {
-            initializeView();
+            //initializeView();
         }
 
-        Button btn = this.findViewById(R.id.send_notifications);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //sendNotification(view);
-                notifacationSystem.sendNotification(FloatingViewService.class,R.drawable.ic_android_circle,R.drawable.ic_android_circle);
-                finish();
-            }
-        });
+//        Button btn = this.findViewById(R.id.send_notifications);
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                //sendNotification(view);
+//                notifacationSystem.sendNotification(FloatingViewService.class,R.drawable.ic_android_circle,R.drawable.ic_android_circle);
+//                finish();
+//            }
+//        });
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -65,35 +80,85 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent broadcast = PendingIntent.getBroadcast(this, 100, notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        Toast.makeText(activity, ""+Calendar.AM_PM, Toast.LENGTH_LONG).show();
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        Toast.makeText(activity, ""+hour, Toast.LENGTH_LONG).show();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 17);
+        calendar.add(Calendar.MINUTE, 1);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),broadcast);
 
 
+        //Adding toolbar to the activity
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //Initializing the tablayout
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+
+        //Adding the tabs using addTab() method
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.addTab(tabLayout.newTab());
+        tabLayout.addTab(tabLayout.newTab());
+        tabLayout.addTab(tabLayout.newTab());
+        tabLayout.addTab(tabLayout.newTab());
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        //Initializing viewPager
+        viewPager = (ViewPager) findViewById(R.id.pager);
+
+        //Creating our pager adapter
+        Pager adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount());
+
+        //Adding adapter to pager
+        viewPager.setAdapter(adapter);
+
+
+        viewPager.arrowScroll(View.FOCUS_RIGHT);
+
+        //Adding onTabSelectedListener to swipe views
+        tabLayout.setOnTabSelectedListener(this);
+
+        tabLayout.setupWithViewPager(viewPager);
+
+
 
     }
 
-    private void initializeView() {
-        findViewById(R.id.notify_me).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                //startService(new Intent(MainActivity.this , ExitButtonView.class));
-                startService(new Intent(MainActivity.this, FloatingViewService.class));
-                finish();
-            }
-        });
+
+
+
+
+//    private void initializeView() {
+//        findViewById(R.id.notify_me).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                //startService(new Intent(MainActivity.this , ExitButtonView.class));
+//                startService(new Intent(MainActivity.this, FloatingViewService.class));
+//                finish();
+//            }
+//        });
+//    }
+
+
+  /*  @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        return super.onOptionsItemSelected(item);
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
             //Check if the permission is granted or not.
             if (resultCode == RESULT_OK) {
-                initializeView();
+                //initializeView();
                 Toast.makeText(this,
                         "Here",
                         Toast.LENGTH_SHORT).show();
@@ -139,5 +204,25 @@ public class MainActivity extends AppCompatActivity {
 
         assert mNotificationManager != null;
         mNotificationManager.notify(001,mBuilder.build());
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        viewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

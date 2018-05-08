@@ -32,7 +32,7 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/transparent"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <!--Close button-->
 
@@ -62,7 +62,7 @@
             android:layout_height="411dp"
             android:background="@android:color/darker_gray"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/container"
@@ -113,22 +113,31 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginEnd="35dp"
-                    android:text="Here" />
+                    android:background="@drawable/border"
+                    android:text="Date Posted: DATE" />
 
                 <ImageView
-                    android:layout_width="20px"
-                    android:layout_height="20px"
+                    android:id="@+id/favicon"
+                    android:layout_width="60px"
+                    android:layout_height="60px"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="106dp" />
+                    android:adjustViewBounds="false"
+
+                    android:cropToPadding="false"
+                    android:src="@drawable/fav" />
 
                 <ImageView
-                    android:layout_width="20px"
-                    android:layout_height="20px"
+                    android:id="@+id/likeicon"
+                    android:layout_width="60px"
+                    android:layout_height="60px"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="24dp" />
+                    android:layout_marginStart="62dp"
+                    android:adjustViewBounds="false"
+
+                    android:cropToPadding="false"
+                    android:src="@drawable/like_unhighlighted" />
 
             </RelativeLayout>
 
