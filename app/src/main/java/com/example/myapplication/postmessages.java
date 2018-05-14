@@ -1,15 +1,11 @@
 package com.example.myapplication;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,24 +15,17 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.Toast;
-
-import static android.content.ContentValues.TAG;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link writePost.OnFragmentInteractionListener} interface
+ * {@link postmessages.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link writePost#newInstance} factory method to
+ * Use the {@link postmessages#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class writePost extends Fragment {
-
-
-
-
+public class postmessages extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -48,13 +37,14 @@ public class writePost extends Fragment {
     private static WebView webView;
     private static View v;
     private boolean javascriptInterfaceBroken =false;
-    private OnFragmentInteractionListener mListener;
     static WebAppInterface webAppInterface;
     Button messbtn;
     FragmentActivity activity;
     public writePost writePost;
 
-    public writePost() {
+    private OnFragmentInteractionListener mListener;
+
+    public postmessages() {
         // Required empty public constructor
     }
 
@@ -64,11 +54,11 @@ public class writePost extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment writePost.
+     * @return A new instance of fragment postmessages.
      */
     // TODO: Rename and change types and number of parameters
-    public static writePost newInstance(String param1, String param2) {
-        writePost fragment = new writePost();
+    public static postmessages newInstance(String param1, String param2) {
+        postmessages fragment = new postmessages();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -76,52 +66,25 @@ public class writePost extends Fragment {
         return fragment;
     }
 
-
-
-    @Override
-    public void onAttach(Activity context) {
-        super.onAttach(context);
-        //activity = context;
-
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        writePost = this;
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-
         }
-
-
     }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        activity = this.getActivity();
-
-
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        v = inflater.inflate(R.layout.fragment_write_post, container, false);
+        View v = inflater.inflate(R.layout.fragment_postmessages, container, false);
 
 
 
 
-        webView = v.findViewById(R.id.writewebview);
+        webView = v.findViewById(R.id.postMessageWeb);
         webAppInterface = new WebAppInterface(v.getContext());
 
         messbtn = new Button(v.getContext());
@@ -147,7 +110,7 @@ public class writePost extends Fragment {
         }catch (Exception e){
 
         }
-        mListener.writeFragmentInteraction(webAppInterface,this);
+        mListener.postFragmentInteraction(webAppInterface,this);
 
 
         if(!javascriptInterfaceBroken){
@@ -156,7 +119,7 @@ public class writePost extends Fragment {
 
 
 
-        webView.loadUrl("file:///android_asset/www/pages/post.html");
+        webView.loadUrl("file:///android_asset/www/pages/messagearea.html");
 
         webView.setWebChromeClient(new WebChromeClient() {
 
@@ -168,30 +131,31 @@ public class writePost extends Fragment {
 
         webView.setWebViewClient(new WebViewClient());
 
-
         return v;
     }
-
-
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.writeFragmentInteractions(uri);
+            mListener.postFragmentInteraction(uri);
         }
     }
 
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    public static WebAppInterface getWebAppInterface() {
-        return webAppInterface;
     }
 
     /**
@@ -204,28 +168,9 @@ public class writePost extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-
-
-
-
-    public static WebView getWebView() {
-        return webView;
-    }
-    public static View getv(){
-        return v;
-    }
-
     public interface OnFragmentInteractionListener {
-
-
         // TODO: Update argument type and name
-        void writeFragmentInteractions(Uri uri);
-        public WebAppInterface webApp = getWebAppInterface();
-        public View v = getv();
-
-
-        void  writeFragmentInteraction(WebAppInterface webAppInterface,writePost writePost);
+        void postFragmentInteraction(Uri uri);
+        void postFragmentInteraction(WebAppInterface webAppInterface, postmessages postmessage);
     }
-
-
 }

@@ -15,6 +15,9 @@ import android.os.Build;
 import android.provider.Settings;
 
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.PagerAdapter;
@@ -22,17 +25,19 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.widget.Button;
 import android.widget.Toast;
 
 
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener,userPost.OnFragmentInteractionListener,topPost.OnFragmentInteractionListener,
-writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener{
+public class MainActivity extends FragmentActivity implements TabLayout.OnTabSelectedListener,userPost.OnFragmentInteractionListener,topPost.OnFragmentInteractionListener,
+writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener,postmessages.OnFragmentInteractionListener{
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     private static final int CHANNEL_ID = 001;
     private Activity activity;
@@ -41,6 +46,8 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
 
     //This is our viewPager
     private ViewPager viewPager;
+
+    public Pager adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,9 +95,9 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         alarmManager.setExact(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),broadcast);
 
 
-        //Adding toolbar to the activity
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        //Adding toolbar to the activity
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         //Initializing the tablayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -108,7 +115,7 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         viewPager = (ViewPager) findViewById(R.id.pager);
 
         //Creating our pager adapter
-        Pager adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount());
+        adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount());
 
         //Adding adapter to pager
         viewPager.setAdapter(adapter);
@@ -121,6 +128,8 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         tabLayout.setOnTabSelectedListener(this);
 
         tabLayout.setupWithViewPager(viewPager);
+
+
 
 
 
@@ -154,6 +163,11 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }*/
+
+
+    public  Pager getAdapter() {
+        return adapter;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -225,6 +239,63 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
 
     @Override
     public void onFragmentInteraction(Uri uri) {
+
+        //Toast.makeText(activity, webApp, Toast.LENGTH_SHORT).show();
+    }
+
+
+    @Override
+    public void writeFragmentInteractions(Uri uri) {
+
+    }
+
+    @Override
+    public void writeFragmentInteraction(WebAppInterface webAppInterface, final writePost writePost) {
+        webAppInterface.messbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                postmessages postmessages = new postmessages();
+                FragmentManager fragmentManager = getAdapter().getFragmentManager();
+
+
+                fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                    @Override
+                    public void onBackStackChanged() {
+                        ///Toast.makeText(activity, "List", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                if(fragmentManager != null){
+                    android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.animator.slide_up,R.animator.slide_down);
+                    //fragmentTransaction.add(Fragment.instantiate(activity,postmessages.class.getName()),"Messginf");
+                    //fragmentTransaction.hide(writePost);
+                    fragmentTransaction.replace(R.id.writepost,Fragment.instantiate(activity,postmessages.class.getName()));
+                    fragmentTransaction.addToBackStack("writepage");
+                    fragmentTransaction.show(postmessages);
+                    fragmentTransaction.commit();
+                }
+
+
+            }
+        });
+    }
+
+    @Override
+    public void postFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    public void postFragmentInteraction(WebAppInterface webAppInterface, postmessages postmessage) {
+        
+        webAppInterface.messbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(activity, "Hereaasdfasdfajsdfafliasfliogasdfliosdfal;ojksdf", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 }

@@ -69,8 +69,8 @@ public class userPost extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_user_post, container, false);
         webView = v.findViewById(R.id.userwebview);
-        webView.loadUrl("https://www.google.com");
-
+        //webView.loadUrl("https://www.google.com");
+        webView.loadUrl("file:///android_asset/www/pages/userpost.html");
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 

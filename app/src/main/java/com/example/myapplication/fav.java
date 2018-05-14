@@ -71,8 +71,8 @@ public class fav extends Fragment {
         View v = inflater.inflate(R.layout.fragment_fav, container, false);
 
         webView = v.findViewById(R.id.favwebview);
-        webView.loadUrl("https://www.google.com");
-
+        //webView.loadUrl("https://www.google.com");
+        webView.loadUrl("file:///android_asset/www/pages/fav.html");
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 

@@ -73,6 +73,7 @@ public class topPost extends Fragment {
         webView = v.findViewById(R.id.topwebview);
         webView.loadUrl("https://www.google.com");
 
+        webView.loadUrl("file:///android_asset/www/pages/topost.html");
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 

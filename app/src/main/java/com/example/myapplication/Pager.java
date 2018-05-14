@@ -3,17 +3,27 @@ package com.example.myapplication;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 public class Pager extends FragmentStatePagerAdapter {
 
     //integer to count number of tabs
     int tabCount;
+    FragmentManager fragmentManager;
+    private ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
 
     //Constructor to the class
     public Pager(FragmentManager fm, int tabCount) {
         super(fm);
+        this.fragmentManager = fm;
         //Initializing tab count
         this.tabCount= tabCount;
+    }
+
+    public FragmentManager getFragmentManager() {
+        return fragmentManager;
     }
 
     //Overriding method getItem
@@ -31,14 +41,20 @@ public class Pager extends FragmentStatePagerAdapter {
                 writePost tab3 = new writePost();
                 return tab3;
             case 3:
-                preferences tab4 = new preferences();
+                fav tab4 = new fav();
+
                 return tab4;
             case 4:
-                fav tab5 = new fav();
+                preferences tab5 = new preferences();
                 return tab5;
             default:
                 return null;
         }
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        return super.instantiateItem(container, position);
     }
 
     //Overriden method getCount to get the number of tabs
