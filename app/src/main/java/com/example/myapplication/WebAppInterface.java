@@ -26,10 +26,14 @@ public class WebAppInterface {
 
 
     @JavascriptInterface
-    public void clicked(){
+    public void clicked(String who){
+        this.who = who;
         messbtn.performClick();
     }
 
+    public String getWho() {
+        return who;
+    }
 
     @JavascriptInterface
     public void clickmessagearea() {messagearea.performClick();}

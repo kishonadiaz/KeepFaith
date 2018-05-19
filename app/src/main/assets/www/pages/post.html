@@ -13,18 +13,36 @@
     <style>
 
         body{
-          height: 100%;
+
         }
         .main_container{
           position: absolute;
           height: 100%!important;
-          margin-left: auto; margin-right: auto; margin-top: auto; margin-bottom: auto;}
+          margin-left: auto; margin-right: auto; margin-top: auto; margin-bottom: auto; }
         .cont{
             position: relative;
             display: flex;
 
         }
 
+        .send-gallery{
+          height:60px;
+          margin-top: 10px;
+
+        }
+        .send-adjust{
+          height: 55px!important;
+          margin-top: 15px;
+          margin-right: 10px!important;
+        }
+        .send{
+          width: 75px!important;
+          height: 60px;
+
+          left:7vw;
+
+          margin-left: 20px!important;
+        }
         .postcontainer{
           margin-top: 20px;
           padding: 5px;
@@ -50,8 +68,17 @@
 
 
         }
+        img{
+          position: relative;
+          width: 70px;
+          height:70px;
+          left: auto;
+          right: 10px;
+          bottom: 18px;
+        }
+
         input[type="button"]{
-          width: 45.5%!important;
+          width: 107.5%!important;
           color:lightgray;
         }
         .messagebox{
@@ -61,6 +88,7 @@
            border-radius: 0px;
 
         }
+
         textarea{
           border-radius: 5%!important;
           position: absolute;
@@ -75,14 +103,10 @@
         }
     </style>
 
-    <script type="text/javascript">
-      var counter =0;
-    </script>
-  </head>
   <body>
 
   <div class="container main_container">
-    <!-- <div class="row">
+    <!-- <div class="row">emphysema
 
       <div class="container">
 
@@ -150,11 +174,10 @@
 
         <!-- <textarea class="form-control postarea"></textarea> -->
       <div class="input-group mb-3 ">
-        <button type="button" class="btn form-control btn-outline-secondary messagebox">Secondary</button>
-        <input onclick="cliked()" data-long-press-delay="500" type="button" id="send" class="form-control  " value="Write a message">
-        <input onclick="cliked()" data-long-press-delay="500" type="button" id="send" class="form-control  " value="Write a message">
-        <input onclick="cliked()" data-long-press-delay="500" type="button" id="send" class="form-control  " value="Write a message">
-        <!-- <button type="button" class="form-control btn btn-lg btn-block  messagebox">Block level button</button> -->
+
+        <button onclick="cliked('gallery')" type="button" class="send form-control  " value="Write a message"><img class="send-gallery" src="../assets/images/gallery.png" /></button>
+        <button onclick="cliked('camera')" type="button" class="send form-control  " value="Write a message"><img src="../assets/images/camrea.png" /></button>
+        <button onclick="cliked('messages')" type="button"  class="send  form-control  " value="Write a message"><img class="send-adjust" src="../assets/images/writeamessage.png" /></button>
 
       </div>
     </div>
@@ -167,7 +190,6 @@
     ity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <script src="js/long-press"></script>
 
     <script type="text/javascript">
       // var posttext = $(".maintext");
@@ -203,16 +225,8 @@
         android.setClickedMessage(who,what);
       }
 
-      function cliked(){
-        android.clicked()
-
-        var send = document.getElementsById("send");
-
-        send.addEventListener('long-press',function(e){
-          alert("ADSFASDfa");
-        });
-
-        console.log(counter);
+      function cliked(who){
+        android.clicked(who)
       }
 
     </script>

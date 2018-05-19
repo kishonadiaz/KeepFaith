@@ -103,6 +103,15 @@ public class writePost extends Fragment {
 
     }
 
+    public void setActivity(FragmentActivity activity) {
+        this.activity = activity;
+    }
+
+
+    public FragmentActivity getActivities() {
+        return activity;
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -128,7 +137,6 @@ public class writePost extends Fragment {
 
 
         //webView.loadUrl("https://www.google.com");
-
 
 
 
@@ -220,8 +228,7 @@ public class writePost extends Fragment {
 
         // TODO: Update argument type and name
         void writeFragmentInteractions(Uri uri);
-        public WebAppInterface webApp = getWebAppInterface();
-        public View v = getv();
+
 
 
         void  writeFragmentInteraction(WebAppInterface webAppInterface,writePost writePost);

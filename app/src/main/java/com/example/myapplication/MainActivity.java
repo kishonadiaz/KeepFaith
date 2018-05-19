@@ -18,6 +18,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.PagerAdapter;
@@ -31,18 +32,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.widget.Button;
+import android.widget.Gallery;
 import android.widget.Toast;
 
 
 import java.util.Calendar;
 
 public class MainActivity extends FragmentActivity implements TabLayout.OnTabSelectedListener,userPost.OnFragmentInteractionListener,topPost.OnFragmentInteractionListener,
-writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener,postmessages.OnFragmentInteractionListener{
+writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener,postmessages.OnFragmentInteractionListener
+,MyGallery.OnFragmentInteractionListener,MyCamera.OnFragmentInteractionListener{
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     private static final int CHANNEL_ID = 001;
     private Activity activity;
 
     private TabLayout tabLayout;
+
+    private FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
 
     //This is our viewPager
     private ViewPager viewPager;
@@ -69,6 +75,13 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
             startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
         } else {
             //initializeView();
+        }
+
+        writePost writePost = (writePost) getSupportFragmentManager().findFragmentByTag("writepage");
+        if(writePost !=null){
+            writePost.setActivity(this);
+        }else{
+            writePost.setActivity(this);
         }
 
 //        Button btn = this.findViewById(R.id.send_notifications);
@@ -250,30 +263,62 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
     }
 
     @Override
-    public void writeFragmentInteraction(WebAppInterface webAppInterface, final writePost writePost) {
+    public void writeFragmentInteraction(final WebAppInterface webAppInterface, final writePost writePost) {
         webAppInterface.messbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 postmessages postmessages = new postmessages();
-                FragmentManager fragmentManager = getAdapter().getFragmentManager();
+                MyCamera camera = new MyCamera();
+                MyGallery gallery = new MyGallery();
+                fragmentManager = getAdapter().getFragmentManager();
 
 
-                fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-                    @Override
-                    public void onBackStackChanged() {
-                        ///Toast.makeText(activity, "List", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                Toast.makeText(activity,webAppInterface.getWho(), Toast.LENGTH_SHORT).show();
+
+
+
+
 
                 if(fragmentManager != null){
-                    android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction = fragmentManager.beginTransaction();
+
                     fragmentTransaction.setCustomAnimations(R.animator.slide_up,R.animator.slide_down);
-                    //fragmentTransaction.add(Fragment.instantiate(activity,postmessages.class.getName()),"Messginf");
+                    fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                        @Override
+                        public void onBackStackChanged() {
+                            Toast.makeText(activity, "List", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+
                     //fragmentTransaction.hide(writePost);
-                    fragmentTransaction.replace(R.id.writepost,Fragment.instantiate(activity,postmessages.class.getName()));
-                    fragmentTransaction.addToBackStack("writepage");
-                    fragmentTransaction.show(postmessages);
+
+
+
+                    if(webAppInterface.getWho().equals("messages")) {
+
+                        fragmentTransaction.add(Fragment.instantiate(activity,postmessages.class.getName()),"Messginf");
+                        fragmentTransaction.show(postmessages);
+                        fragmentTransaction.replace(R.id.writepost,Fragment.instantiate(activity,postmessages.class.getName()));
+                        fragmentTransaction.addToBackStack("writepage");
+                    }
+                    else if(webAppInterface.getWho().equals("camera")){
+                        fragmentTransaction.add(Fragment.instantiate(activity,MyCamera.class.getName()),"Messginf");
+                        //fragmentTransaction.hide(writePost);
+                        fragmentTransaction.show(camera);
+                        fragmentTransaction.replace(R.id.writepost,Fragment.instantiate(activity,MyCamera.class.getName()));
+                        fragmentTransaction.addToBackStack("writepage");
+                    }
+                    else if(webAppInterface.getWho().equals("gallery")){
+                        fragmentTransaction.add(Fragment.instantiate(activity,MyGallery.class.getName()),"Messginf");
+                        //fragmentTransaction.hide(writePost);
+                        fragmentTransaction.show(gallery);
+                        fragmentTransaction.replace(R.id.writepost,Fragment.instantiate(activity,MyGallery.class.getName()));
+                        fragmentTransaction.addToBackStack("writepage");
+                    }
+
+
                     fragmentTransaction.commit();
                 }
 
