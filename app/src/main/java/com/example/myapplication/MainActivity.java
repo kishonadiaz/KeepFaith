@@ -81,7 +81,11 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         if(writePost !=null){
             writePost.setActivity(this);
         }else{
-            writePost.setActivity(this);
+            try {
+                writePost.setActivity(this);
+            }catch (Exception e){
+
+            }
         }
 
 //        Button btn = this.findViewById(R.id.send_notifications);
