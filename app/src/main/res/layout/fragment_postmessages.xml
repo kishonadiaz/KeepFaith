@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:id="@+id/messpost"
-    tools:context=".postmessages">
+    tools:context=".fragments.postmessages">
 
 
     <!-- TODO: Update blank fragment layout -->

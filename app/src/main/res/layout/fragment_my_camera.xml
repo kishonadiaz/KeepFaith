@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    tools:context=".MyCamera">
+    tools:context=".fragments.MyCamera">
 
-    <com.example.myapplication.AutoFitTextureView
+    <com.example.myapplication.util.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

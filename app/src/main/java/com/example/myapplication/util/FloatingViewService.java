@@ -1,43 +1,32 @@
-package com.example.myapplication;
+package com.example.myapplication.util;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.IBinder;
 
-import android.os.Looper;
-import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.util.Calendar;
+import com.example.myapplication.MainActivity;
+import com.example.myapplication.R;
+import com.example.myapplication.notification.NotificationReceiver;
 
-import pl.droidsonroids.gif.GifDrawable;
-import pl.droidsonroids.gif.MultiCallback;
+import java.util.Calendar;
 
 /**
  * Created by simplecast on 2/4/2018.
@@ -77,8 +66,7 @@ public class FloatingViewService extends Service {
         super.onCreate();
 
 
-       // retainer s = new retainer(1);
-//        InterfaceClass.retainer retainer = new InterfaceClass.retainer(d);
+
 
         //Inflate the floating view layout we created
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null);
@@ -96,9 +84,6 @@ public class FloatingViewService extends Service {
         params.x = 90;
         params.y = 100;
 
-//
-//        GifImageView gifImageView = mFloatingView.findViewById(R.id.GifImageView);
-//        gifImageView.setGifImageResource(R.drawable.ic_rotating_earth);
 
         //Add the view to the window
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -134,18 +119,12 @@ public class FloatingViewService extends Service {
         htmlData = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>" + htmlData;
 
         String html = "<!doctype html><html><head><style>body{background:darkgray}</style></head><body><img src='ic_rotating_earth.gif' style='width:100%;  ' /></body></html>";
-        //webView.loadDataWithBaseURL("file:///android_asset/","<style>body{background:green;}</style>", "text/html","UTF-8",null);
 
 
         webView.loadDataWithBaseURL("file:///android_res/drawable/",html,"text/html","utf-8",null);
-        //webView.setTouchscreenBlocksFocus(true);
-        //webView.loadDataWithBaseURL("file:///android_asset/",htmlData, "text/html","UTF-8",null);
+
         linearLayout.addView(webView);
 
-
-
-
-        //linearLayout.addView(text);
 
 
         mWindowManager.addView(mFloatingView, params);

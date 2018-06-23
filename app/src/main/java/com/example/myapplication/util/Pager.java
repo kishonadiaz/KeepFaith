@@ -1,9 +1,15 @@
-package com.example.myapplication;
+package com.example.myapplication.util;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
+
+import com.example.myapplication.fragments.fav;
+import com.example.myapplication.fragments.preferences;
+import com.example.myapplication.fragments.topPost;
+import com.example.myapplication.fragments.userPost;
+import com.example.myapplication.fragments.writePost;
 
 import java.util.ArrayList;
 

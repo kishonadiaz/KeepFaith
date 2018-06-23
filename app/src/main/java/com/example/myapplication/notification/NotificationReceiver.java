@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.notification;
 
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -6,6 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
+
+import com.example.myapplication.util.FloatingViewService;
+import com.example.myapplication.MainActivity;
+import com.example.myapplication.R;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
@@ -28,7 +32,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         NotificationSystem notifacationSystem = new NotificationSystem(context,CHANNEL_ID);
 //
 //
-        notifacationSystem.sendNotification(FloatingViewService.class,R.drawable.ic_android_circle,R.drawable.ic_android_circle);
+        notifacationSystem.sendNotification(FloatingViewService.class, R.drawable.ic_launcher_round,R.drawable.ic_launcher_round);
 //        notifacationSystem.setContentIntent(pendingIntent).build();
     }
 

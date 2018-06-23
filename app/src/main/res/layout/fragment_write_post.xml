@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:id="@+id/writepost"
     android:tag="writepage"
-    tools:context=".writePost">
+    tools:context=".fragments.writePost">
 
     <!-- TODO: Update blank fragment layout -->
     <!--<TextView-->

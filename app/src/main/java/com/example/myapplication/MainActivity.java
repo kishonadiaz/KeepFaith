@@ -21,20 +21,25 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.view.ViewPager;;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.webkit.JavascriptInterface;
-import android.widget.Button;
-import android.widget.Gallery;
 import android.widget.Toast;
 
+
+import com.example.myapplication.fragments.MyCamera;
+import com.example.myapplication.fragments.MyGallery;
+import com.example.myapplication.fragments.fav;
+import com.example.myapplication.fragments.postmessages;
+import com.example.myapplication.fragments.preferences;
+import com.example.myapplication.fragments.topPost;
+import com.example.myapplication.fragments.userPost;
+import com.example.myapplication.fragments.writePost;
+import com.example.myapplication.notification.NotificationReceiver;
+import com.example.myapplication.notification.NotificationSystem;
+import com.example.myapplication.util.FloatingViewService;
+import com.example.myapplication.util.Pager;
+import com.example.myapplication.util.WebAppInterface;
 
 import java.util.Calendar;
 
@@ -53,6 +58,7 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
     //This is our viewPager
     private ViewPager viewPager;
 
+    //TabPage
     public Pager adapter;
 
     @Override
@@ -88,15 +94,7 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
             }
         }
 
-//        Button btn = this.findViewById(R.id.send_notifications);
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //sendNotification(view);
-//                notifacationSystem.sendNotification(FloatingViewService.class,R.drawable.ic_android_circle,R.drawable.ic_android_circle);
-//                finish();
-//            }
-//        });
+
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -112,9 +110,6 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         alarmManager.setExact(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),broadcast);
 
 
-//        //Adding toolbar to the activity
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
 
         //Initializing the tablayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -170,16 +165,6 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
 //    }
 
 
-  /*  @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        return super.onOptionsItemSelected(item);
-    }*/
 
 
     public  Pager getAdapter() {

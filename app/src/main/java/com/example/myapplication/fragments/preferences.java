@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.fragments;
 
 import android.content.Context;
 import android.net.Uri;
@@ -11,16 +11,18 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.example.myapplication.R;
+
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link fav.OnFragmentInteractionListener} interface
+ * {@link preferences.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link fav#newInstance} factory method to
+ * Use the {@link preferences#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class fav extends Fragment {
+public class preferences extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -33,7 +35,7 @@ public class fav extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public fav() {
+    public preferences() {
         // Required empty public constructor
     }
 
@@ -43,11 +45,11 @@ public class fav extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment fav.
+     * @return A new instance of fragment preferences.
      */
     // TODO: Rename and change types and number of parameters
-    public static fav newInstance(String param1, String param2) {
-        fav fragment = new fav();
+    public static preferences newInstance(String param1, String param2) {
+        preferences fragment = new preferences();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -68,16 +70,14 @@ public class fav extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_fav, container, false);
+        View v = inflater.inflate(R.layout.fragment_prefrances, container, false);
+        webView = v.findViewById(R.id.prefrencewebview);
+        webView.loadUrl("https://www.google.com");
 
-        webView = v.findViewById(R.id.favwebview);
-        //webView.loadUrl("https://www.google.com");
-        webView.loadUrl("file:///android_asset/www/pages/fav.html");
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
         webView.setWebViewClient(new WebViewClient());
-
         return v;
     }
 

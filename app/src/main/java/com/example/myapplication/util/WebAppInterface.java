@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.util;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -13,10 +13,10 @@ public class WebAppInterface {
     private String sendclicked;
     String who;
     String what;
-    Button messbtn;
+    public Button messbtn;
     Button messagearea;
 
-    WebAppInterface(Context context){
+    public WebAppInterface(Context context){
         mContext = context;
         messbtn = new Button(mContext);
 

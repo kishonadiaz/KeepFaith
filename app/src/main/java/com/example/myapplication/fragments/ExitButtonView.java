@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.fragments;
 
 import android.app.ActivityManager;
 
@@ -13,6 +13,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import com.example.myapplication.R;
 
 public class ExitButtonView extends Service {
     private WindowManager mWindowManager;
@@ -35,9 +37,6 @@ public class ExitButtonView extends Service {
 
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.exit_button, null);
 
-//        int[] d ={1};
-//        InterfaceClass.retainer retainer = new InterfaceClass.retainer(d);
-
         params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -51,13 +50,6 @@ public class ExitButtonView extends Service {
         params.y = 100;
 
 
-
-       //Toast.makeText(this, ""+retainer.getRainer(0), Toast.LENGTH_SHORT).show();
-//
-//        GifImageView gifImageView = mFloatingView.findViewById(R.id.GifImageView);
-//        gifImageView.setGifImageResource(R.drawable.ic_rotating_earth);
-
-        //Add the view to the window
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         mWindowManager.addView(mFloatingView, params);
