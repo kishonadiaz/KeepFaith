@@ -12,9 +12,15 @@ import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorEventListener2;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -28,11 +34,13 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -54,6 +62,7 @@ import com.example.myapplication.util.AutoFitTextureView;
 import com.example.myapplication.R;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -67,6 +76,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MyCamera extends Fragment implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback{
 
+    //https://developer.android.com/samples/
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
@@ -96,6 +106,10 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     private static final int MAX_PREVIEW_WIDTH = 1920;
 
     private static final int MAX_PREVIEW_HEIGHT = 1080;
+
+    int rotation;
+
+    private SensorEventListener2 sensorEventListener2;
 
 
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener
@@ -172,6 +186,39 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader imageReader) {
+            SensorManager sensorManager =(SensorManager)getActivity().getSystemService(getActivity().getBaseContext().SENSOR_SERVICE);
+
+            sensorManager.registerListener(new SensorEventListener() {
+                int orientation=-1;
+
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (event.values[1]<6.5 && event.values[1]>-6.5) {
+                        if (orientation!=1) {
+                            //showToast("Landscape");
+                            rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                            showToast(rotation+"heregkh");
+                        }
+                        orientation=1;
+                    } else {
+                        if (orientation!=0) {
+                            //showToast("Portrait");
+                            rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+
+                            showToast(rotation+"hererk");
+                        }
+                        orientation=0;
+                    }
+
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                }
+            },sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
+
+
             mBackgroundHandler.post(new ImageSaver(imageReader.acquireNextImage(),mFile));
         }
     };
@@ -189,6 +236,13 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     private int mSenorOrientation;
 
+    private CameraCharacteristics characteristics;
+
+    private static final String STATE_COUNTER = "counter";
+
+    private int mCounter;
+
+
     private CameraCaptureSession.CaptureCallback mCaptureCallback
             = new CameraCaptureSession.CaptureCallback() {
 
@@ -199,6 +253,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                     break;
                 }
                 case STATE_WAITING_LOCK: {
+
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
                     if (afState == null) {
                         captureStillPicture();
@@ -209,6 +264,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                         if (aeState == null ||
                                 aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
                             mState = STATE_PICTURE_TAKEN;
+
                             captureStillPicture();
                         } else {
                             runPrecaptureSequence();
@@ -278,16 +334,26 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
         int w = aspectRatio.getWidth();
         int h = aspectRatio.getHeight();
+        double ratio = (double) h/w;
         for(Size option : choices){
-            if(option.getHeight() == option.getWidth() * h/w){
-                if(option.getWidth() >= textureViewWidth &&
-                        option.getHeight() >= textureViewHeight){
+            if (option.getWidth() <= maxWidth && option.getHeight() <= maxHeight &&
+                    option.getHeight() == option.getWidth() * h / w) {
+                if (option.getWidth() >= textureViewWidth &&
+                        option.getHeight() >= textureViewHeight) {
                     bigEnough.add(option);
-                }else
-                {
+                } else {
                     notBigEnough.add(option);
                 }
             }
+//            if(option.getHeight() == option.getWidth() * h/w){
+//                if(option.getWidth() >= textureViewWidth &&
+//                        option.getHeight() >= textureViewHeight){
+//                    bigEnough.add(option);
+//                }else
+//                {
+//                    notBigEnough.add(option);
+//                }
+//            }
         }
 
         if(bigEnough.size() > 0){
@@ -298,6 +364,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             Log.e(TAG,"Couldn't find any suitable preview size");
             return choices[0];
         }
+//
     }
 
 
@@ -337,6 +404,8 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
         return inflater.inflate(R.layout.fragment_my_camera, container, false);
     }
 
@@ -347,14 +416,49 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         //view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = view.findViewById(R.id.texture);
 
+
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(getActivity(), "landscape", Toast.LENGTH_SHORT).show();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(getActivity(), "portrait", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+        sensorEventListener2 = new SensorEventListener2() {
+            @Override
+            public void onFlushCompleted(Sensor sensor) {
 
+            }
+
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                showToast("heresssaaddff");
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(STATE_COUNTER, mCounter);
     }
 
     @Override
@@ -362,11 +466,16 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         super.onResume();
         startBackgroundThread();
 
+
+        //configureTransform(mTextureView.getWidth(),mTextureView.getHeight());
         if(mTextureView.isAvailable()){
             openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            //mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }else{
+            //openCamera(mTextureView.getWidth(), mTextureView.getHeight());
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
+
 
 
     }
@@ -404,13 +513,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     }
 
+
     private void setUpCameraOutputs(int width, int height){
         FragmentActivity activity = getActivity();
         CameraManager manager =(CameraManager)activity.getSystemService(Context.CAMERA_SERVICE);
 
         try{
             for(String cameraId: manager.getCameraIdList()){
-                CameraCharacteristics characteristics
+                characteristics
                         = manager.getCameraCharacteristics(cameraId);
 
                 Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
@@ -426,7 +536,8 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                 Size largest = Collections.max(
                         Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
                         new CompareSizesByArea());
-                mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
+
+                mImageReader = ImageReader.newInstance(largest.getWidth()* largest.getHeight()/largest.getWidth(), largest.getHeight(),
                         ImageFormat.JPEG, 2);
                 mImageReader.setOnImageAvailableListener(
                         mOnImageAvailableListener,mBackgroundHandler);
@@ -461,12 +572,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                 int maxPreviewWidth = displaySize.x;
                 int maxPreviewHeight = displaySize.y;
 
-                if(swappedDimensions){
-                    rotatedPreviewWidth = height;
-                    rotatedPreviewHeight = width;
-                    maxPreviewWidth = displaySize.x;
-                    maxPreviewHeight = displaySize.y;
-                }
+                //showToast(""+swappedDimensions);
+//                if(swappedDimensions){
+//
+//                    rotatedPreviewWidth = height;
+//                    rotatedPreviewHeight = width;
+//                    maxPreviewWidth = displaySize.y;
+//                    maxPreviewHeight = displaySize.x;
+//                }
 
                 if(maxPreviewWidth > MAX_PREVIEW_WIDTH){
                     maxPreviewWidth = MAX_PREVIEW_WIDTH;
@@ -480,11 +593,48 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                         maxPreviewHeight, largest);
 
                 int orientation = getResources().getConfiguration().orientation;
-                if(orientation == Configuration.ORIENTATION_LANDSCAPE){
-                    mTextureView.setAspectRatio(mPreviewSize.getHeight(), mPreviewSize.getHeight());
-                }else{
-                    mTextureView.setAspectRatio(mPreviewSize.getHeight(),mPreviewSize.getWidth());
-                }
+
+
+
+
+                mTextureView.setAspectRatio(mPreviewSize.getHeight(),mPreviewSize.getWidth());
+//                if(orientation == Configuration.ORIENTATION_LANDSCAPE){
+//                    mTextureView.setAspectRatio(mPreviewSize.getWidth(), mgetJpegOrientationPreviewSize.getHeight());
+//                }else{
+//                    mTextureView.setAspectRatio(mPreviewSize.getHeight(),mPreviewSize.getWidth());
+//                }
+
+//                SensorManager sensorManager =(SensorManager)getActivity().getSystemService(getActivity().getBaseContext().SENSOR_SERVICE);
+//
+//                sensorManager.registerListener(new SensorEventListener() {
+//                    int orientation=-1;
+//
+//                    @Override
+//                    public void onSensorChanged(SensorEvent event) {
+//                        if (event.values[1]<6.5 && event.values[1]>-6.5) {
+//                            if (orientation!=1) {
+//                                //showToast("Landscape");
+//                                rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+//                                //showToast(rotation+"");
+//                            }
+//                            orientation=1;
+//                        } else {
+//                            if (orientation!=0) {
+//                                //showToast("Portrait");
+//                                rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+//
+//                                //showToast(rotation+"");
+//                            }
+//                            orientation=0;
+//                        }
+//
+//                    }
+//
+//                    @Override
+//                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+//
+//                    }
+//                },sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
 
                 Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
                 mFlashSupported = available == null ? false : available;
@@ -625,6 +775,61 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         }
     }
 
+    private int getJpegOrientation(CameraCharacteristics c, int deviceOrientation) {
+        if (deviceOrientation == android.view.OrientationEventListener.ORIENTATION_UNKNOWN) return 0;
+        int sensorOrientation = c.get(CameraCharacteristics.SENSOR_ORIENTATION);
+
+        showToast(deviceOrientation+"gejj");
+        // Round device orientation to a multiple of 90
+        deviceOrientation = (deviceOrientation + 45) / 90 * 90;
+
+        // Reverse device orientation for front-facing cameras
+        boolean facingFront = c.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT;
+        if (facingFront) deviceOrientation = -deviceOrientation;
+
+        // Calculate desired JPEG orientation relative to camera orientation to make
+        // the image upright relative to the device orientation
+        final int[] jpegOrientation = {(sensorOrientation + deviceOrientation + 360) % 360};
+
+       /* SensorManager sensorManager =(SensorManager)getActivity().getSystemService(getActivity().getBaseContext().SENSOR_SERVICE);
+
+        sensorManager.registerListener(new SensorEventListener() {
+            int orientation=-1;
+
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.values[1]<6.5 && event.values[1]>-6.5) {
+                    if (orientation!=1) {
+                        showToast("Landscape");
+                        jpegOrientation[0] = 180;
+                        rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                        ///showToast(rotation+"");
+                    }
+                    orientation=1;
+                } else {
+                    if (orientation!=0) {
+                        showToast("Portrait");
+                        rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                        jpegOrientation[0] = 0;
+                        //showToast(rotation+"");
+                    }
+                    orientation=0;
+                }
+
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        },sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
+
+
+*/
+
+        return jpegOrientation[0];
+    }
+
     private void configureTransform(int viewWidth, int viewHeight){
         FragmentActivity activity = getActivity();
         if(null == mTextureView || null ==  mPreviewSize || null == activity){
@@ -641,11 +846,13 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
             matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
             float scale = Math.max(
-              viewHeight / mPreviewSize.getHeight(),
-              viewWidth / mPreviewSize.getWidth());
+                    (float) viewWidth / mPreviewSize.getHeight(),
+                    (float) viewHeight / mPreviewSize.getWidth());
             matrix.postScale(scale, scale, centerX, centerY);
+           // matrix.postRotate(90 *(rotation -2), centerX, centerY);
             matrix.postRotate(90 *(rotation -2), centerX, centerY);
-        }else if(Surface.ROTATION_180 == rotation){
+        }
+        else if(Surface.ROTATION_180 == rotation){
             matrix.postRotate(180,centerX,centerY);
         }
         mTextureView.setTransform(matrix);
@@ -689,6 +896,8 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                 return;
             }
 
+
+
             final CaptureRequest.Builder captureBuilder =
                     mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             captureBuilder.addTarget(mImageReader.getSurface());
@@ -697,8 +906,49 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
             setAutoFlash(captureBuilder);
 
-            int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,getOrientation(rotation));
+            //showToast(rotation+"");
+
+            //int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+            //captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,getOrientation(rotation));
+            //showToast(rotation+"");
+            //rotation = -1;
+            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,getJpegOrientation(characteristics,-rotation));
+/*
+
+            SensorManager sensorManager =(SensorManager)getActivity().getSystemService(getActivity().getBaseContext().SENSOR_SERVICE);
+
+            sensorManager.registerListener(new SensorEventListener() {
+                int orientation=-1;
+
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (event.values[1]<6.5 && event.values[1]>-6.5) {
+                        if (orientation!=1) {
+                            //showToast("Landscape");
+                            rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                            //showToast(rotation+"");
+                        }
+                        orientation=1;
+                    } else {
+                        if (orientation!=0) {
+                            //showToast("Portrait");
+                            rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+
+                            //showToast(rotation+"");
+                        }
+                        orientation=0;
+                    }
+
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                }
+            },sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
+
+
+*/
 
             CameraCaptureSession.CaptureCallback CaptureCallback
                     = new CameraCaptureSession.CaptureCallback() {
@@ -756,6 +1006,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        closeCamera();
     }
 
 
@@ -795,14 +1046,25 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
          */
         private final File mFile;
 
+        private int mOrientation;
+
         ImageSaver(Image image, File file) {
             mImage = image;
             mFile = file;
+
         }
 
         @Override
         public void run() {
-            ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
+
+
+            if(Build.VERSION.SDK_INT < 24){
+
+            }else{
+
+            }
+
+            /*ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             FileOutputStream output = null;
@@ -820,10 +1082,39 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                         e.printStackTrace();
                     }
                 }
+            }*/
+        }
+
+        public void WriteExifinterface(Image image, File file,int orientation){
+            Matrix matrix = new Matrix();
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            FileOutputStream outputStream = null;
+            try{
+                outputStream = new FileOutputStream(file);
+                outputStream.write(bytes);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                image.close();
+                if(null != outputStream){
+                    try{
+                        outputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+
         }
 
     }
+
+
+
 
     static class CompareSizesByArea implements Comparator<Size> {
 
