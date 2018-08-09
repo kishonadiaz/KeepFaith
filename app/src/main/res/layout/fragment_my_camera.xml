@@ -27,18 +27,36 @@
 
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="47dp">
+        android:layout_marginBottom="62dp">
 
         <Button
             android:id="@+id/picture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="78dp"
+            android:layout_height="76dp"
             android:layout_gravity="center"
-            android:text="Capture" />
+            android:background="@mipmap/photobtn" />
 
 
     </FrameLayout>
 
+    <Button
+        android:id="@+id/record"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="96dp"
+        android:layout_marginStart="37dp"
+        android:background="@mipmap/record_btn" />
+
+    <Button
+        android:id="@+id/gifbtn"
+        android:layout_width="45dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/record"
+        android:layout_marginEnd="52dp"
+        android:background="@mipmap/gifbtn" />
 
 
 </RelativeLayout>
