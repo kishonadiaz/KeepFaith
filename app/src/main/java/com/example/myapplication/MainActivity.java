@@ -1,8 +1,12 @@
 package com.example.myapplication;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -16,10 +20,9 @@ import android.os.Build;
 import android.provider.Settings;
 
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
+
+
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;;
@@ -43,7 +46,7 @@ import com.example.myapplication.util.Pager;
 import com.example.myapplication.util.WebAppInterface;
 
 import java.util.Calendar;
-
+@SuppressLint("SDCardPath")
 public class MainActivity extends FragmentActivity implements TabLayout.OnTabSelectedListener,userPost.OnFragmentInteractionListener,topPost.OnFragmentInteractionListener,
 writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,preferences.OnFragmentInteractionListener,postmessages.OnFragmentInteractionListener
 ,MyGallery.OnFragmentInteractionListener,MyCamera.OnFragmentInteractionListener{
@@ -262,13 +265,10 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
                 postmessages postmessages = new postmessages();
                 MyCamera camera = new MyCamera();
                 MyGallery gallery = new MyGallery();
-                fragmentManager = getAdapter().getFragmentManager();
+                fragmentManager = getFragmentManager();
 
 
                 Toast.makeText(activity,webAppInterface.getWho(), Toast.LENGTH_SHORT).show();
-
-
-
 
 
                 if(fragmentManager != null){
@@ -290,7 +290,9 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
                     if(webAppInterface.getWho().equals("messages")) {
 
                         fragmentTransaction.add(Fragment.instantiate(activity,postmessages.class.getName()),"Messginf");
+
                         fragmentTransaction.show(postmessages);
+                        //fragmentTransaction.hide(writePost);
                         fragmentTransaction.replace(R.id.writepost,Fragment.instantiate(activity,postmessages.class.getName()));
                         fragmentTransaction.addToBackStack("writepage");
                     }

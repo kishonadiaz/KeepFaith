@@ -1,12 +1,13 @@
 package com.example.myapplication.fragments;
 
 import android.app.Activity;
+
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ public class writePost extends Fragment {
     private OnFragmentInteractionListener mListener;
     static WebAppInterface webAppInterface;
     Button messbtn;
-    FragmentActivity activity;
+    Activity activity;
     public writePost writePost;
 
     public writePost() {
@@ -69,12 +70,12 @@ public class writePost extends Fragment {
 
     }
 
-    public void setActivity(FragmentActivity activity) {
+    public void setActivity(Activity activity) {
         this.activity = activity;
     }
 
 
-    public FragmentActivity getActivities() {
+    public Activity getActivities() {
         return activity;
     }
 

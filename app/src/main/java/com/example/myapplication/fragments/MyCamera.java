@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.content.Context;
 
 import android.content.DialogInterface;
@@ -16,6 +17,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -33,17 +35,21 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.renderscript.Allocation;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
-import android.support.v4.app.ActivityCompat;
+
+import android.support.v13.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
+
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -56,6 +62,8 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.myapplication.util.AutoFitTextureView;
@@ -74,14 +82,36 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+
+
 public class MyCamera extends Fragment implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback{
 
     //https://developer.android.com/samples/
 
+
+
+
+    private ImageButton photobtn,recordbtn,gifbtn;
+    private ProgressBar progressBar;
+
+
+    private static final int SENSOR_ORIENTATION_DEFAULT_DEGRESS = 90;
+    private static final int SENSOR_ORIENTATION_INVERSE_DEGREE = 270;
+    private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
+    private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
+
+
+
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
+    private static final int REQUEST_VIDEO_PERMISSIONS = 1;
     private static final String FRAGMENT_DIALOG =  "dialog";
 
+
+    private static final String[] VIDEO_PERMISSIONS = {
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+    };
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -89,6 +119,21 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         ORIENTATIONS.append(Surface.ROTATION_180, 270);
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
+
+    static {
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
+
+    static {
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_0, 270);
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_90, 180);
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_180, 90);
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
+    }
+
 
     private static final String TAG = "Camera";
 
@@ -139,11 +184,17 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     private AutoFitTextureView mTextureView;
 
-    private  CameraCaptureSession mCaptureSession;
+    private  CameraCaptureSession mPreviewSession;
 
     private CameraDevice mCameraDevice;
 
     private Size mPreviewSize;
+
+    private Size mVideoSize;
+
+    private MediaRecorder mMediaRecorder;
+
+    private boolean mIsRecordingVideo;
 
     private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -166,7 +217,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
-            FragmentActivity activity = getActivity();
+            Activity activity = getActivity();
             if(null != activity){
                 activity.finish();
             }
@@ -196,14 +247,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                     if (event.values[1]<6.5 && event.values[1]>-6.5) {
                         if (orientation!=1) {
                             //showToast("Landscape");
-                            rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                            //rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
                             showToast(rotation+"heregkh");
                         }
                         orientation=1;
                     } else {
                         if (orientation!=0) {
                             //showToast("Portrait");
-                            rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                            //rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
 
                             showToast(rotation+"hererk");
                         }
@@ -219,7 +270,9 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             },sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
 
 
-            mBackgroundHandler.post(new ImageSaver(imageReader.acquireNextImage(),mFile));
+
+            mBackgroundHandler.post(new ImageSaver(getActivity(),imageReader.acquireNextImage(),mFile));
+
         }
     };
 
@@ -230,7 +283,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     private int mState = STATE_PREVIEW;
 
-    private Semaphore mCameraOpenCloseLock = new Semaphore(1);
+    private Semaphore mCameraOpenCloseLock = new Semaphore(15);
 
     private  boolean mFlashSupported;
 
@@ -415,6 +468,12 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         view.findViewById(R.id.picture).setOnClickListener(this);
         //view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = view.findViewById(R.id.texture);
+        photobtn = view.findViewById(R.id.picture);
+        //recordbtn = view.findViewById(R.id.record);
+
+
+        //recordbtn.setOnClickListener(this);
+        gifbtn = view.findViewById(R.id.gifbtn);
 
 
     }
@@ -434,7 +493,36 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+
+
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+
+                        String path = Environment.getDataDirectory().getAbsolutePath().toString() + "/mnt/sdcard/";
+                       mFile = new File(path);
+                        mFile.mkdir();
+
+
+
+
+                       if(mFile.exists()){
+
+                       }
+                       File Dir = new File("/sdcard/myappFolder/");
+                       Dir.mkdirs();
+
+                        //mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+                    }
+                });
+            }
+        });
+        thread.start();
         sensorEventListener2 = new SensorEventListener2() {
             @Override
             public void onFlushCompleted(Sensor sensor) {
@@ -491,7 +579,8 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     private void requestCameraPermission(){
         if(shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)){
-            new ConfirmationDialog().show(getChildFragmentManager(), FRAGMENT_DIALOG);
+
+            //new ConfirmationDialog().show(getChildFragmentManager(), FRAGMENT_DIALOG);
         }else{
             requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         }
@@ -503,8 +592,8 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         if(requestCode == REQUEST_CAMERA_PERMISSION){
             if(grantResults.length != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
             {
-                ErrorDialog.newInstance("here")
-                        .show(getChildFragmentManager(),FRAGMENT_DIALOG);
+               // ErrorDialog.newInstance("here")
+                        //.show(getChildFragmentManager(),FRAGMENT_DIALOG);
             }
         }else{
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -515,7 +604,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
 
     private void setUpCameraOutputs(int width, int height){
-        FragmentActivity activity = getActivity();
+        Activity activity = getActivity();
         CameraManager manager =(CameraManager)activity.getSystemService(Context.CAMERA_SERVICE);
 
         try{
@@ -648,8 +737,8 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             e.printStackTrace();
         }catch (NullPointerException e){
 
-            ErrorDialog.newInstance("error")
-                    .show(getChildFragmentManager(),FRAGMENT_DIALOG);
+            //ErrorDialog.newInstance("error")
+                   //.show(getChildFragmentManager(),FRAGMENT_DIALOG);
         }
     }
 
@@ -662,7 +751,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         }
         setUpCameraOutputs(width,height);
         configureTransform(width,height);
-        FragmentActivity activity = getActivity();
+        Activity activity = getActivity();
         CameraManager manager =(CameraManager)activity.getSystemService(Context.CAMERA_SERVICE);
 
         try{
@@ -681,9 +770,9 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     private void closeCamera(){
         try {
             mCameraOpenCloseLock.acquire();
-            if(null != mCaptureSession){
-                mCaptureSession.close();
-                mCaptureSession = null;
+            if(null != mPreviewSession){
+                mPreviewSession.close();
+                mPreviewSession = null;
             }
 
             if(null != mCameraDevice){
@@ -746,7 +835,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                             }
 
                             // When the session is ready, we start displaying the preview.
-                            mCaptureSession = cameraCaptureSession;
+                            mPreviewSession = cameraCaptureSession;
                             try {
                                 // Auto focus should be continuous for camera preview.
                                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
@@ -756,7 +845,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
                                 // Finally, we start displaying the camera preview.
                                 mPreviewRequest = mPreviewRequestBuilder.build();
-                                mCaptureSession.setRepeatingRequest(mPreviewRequest,
+                                mPreviewSession.setRepeatingRequest(mPreviewRequest,
                                         mCaptureCallback, mBackgroundHandler);
                             } catch (CameraAccessException e) {
                                 e.printStackTrace();
@@ -831,7 +920,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     }
 
     private void configureTransform(int viewWidth, int viewHeight){
-        FragmentActivity activity = getActivity();
+        Activity activity = getActivity();
         if(null == mTextureView || null ==  mPreviewSize || null == activity){
             return;
         }
@@ -868,7 +957,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_START);
             mState = STATE_WAITING_LOCK;
-            mCaptureSession.capture(mPreviewRequestBuilder.build(),
+            mPreviewSession.capture(mPreviewRequestBuilder.build(),
                     mCaptureCallback, mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -882,7 +971,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
             mState = STATE_WAITING_PRECAPTURE;
-            mCaptureSession.capture(mPreviewRequestBuilder.build(),mCaptureCallback,mBackgroundHandler);
+            mPreviewSession.capture(mPreviewRequestBuilder.build(),mCaptureCallback,mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -891,7 +980,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     public void captureStillPicture(){
         try{
-            final  FragmentActivity activity = getActivity();
+            final  Activity activity = getActivity();
             if(null ==  activity || null == mCameraDevice){
                 return;
             }
@@ -962,9 +1051,9 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                 }
             };
 
-            mCaptureSession.stopRepeating();
-            mCaptureSession.abortCaptures();
-            mCaptureSession.capture(captureBuilder.build(), CaptureCallback,null);
+            mPreviewSession.stopRepeating();
+            mPreviewSession.abortCaptures();
+            mPreviewSession.capture(captureBuilder.build(), CaptureCallback,null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -979,11 +1068,11 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
             setAutoFlash(mPreviewRequestBuilder);
-            mCaptureSession.capture(mPreviewRequestBuilder.build(),
+            mPreviewSession.capture(mPreviewRequestBuilder.build(),
                     mCaptureCallback,
                     mBackgroundHandler);
             mState = STATE_PREVIEW;
-            mCaptureSession.setRepeatingRequest(mPreviewRequest,
+            mPreviewSession.setRepeatingRequest(mPreviewRequest,
                     mCaptureCallback,
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
@@ -1003,6 +1092,13 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        mListener = null;
+        closeCamera();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -1015,12 +1111,32 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         void onFragmentInteraction(Uri uri);
     }
 
+    boolean clicked = false;
+    private volatile Thread thread;
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.picture:{
                 takePicture();
+                photobtn.setBackgroundResource(R.drawable.photopressedbtn);
+                thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(200);
+                                    photobtn.setBackgroundResource(R.drawable.photobtn);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                });
+                thread.start();
                 break;
             }
         }
@@ -1045,12 +1161,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
          * The file we save the image into.
          */
         private final File mFile;
+        private final Activity activity;
 
         private int mOrientation;
 
-        ImageSaver(Image image, File file) {
+        ImageSaver(Activity activity,Image image, File file) {
             mImage = image;
             mFile = file;
+            this.activity = activity;
 
         }
 
@@ -1064,12 +1182,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
             }
 
-            /*ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
+            ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             FileOutputStream output = null;
             try {
-                output = new FileOutputStream(mFile);
+
+                output = activity.openFileOutput(mFile.getName(),Context.MODE_APPEND);
+
                 output.write(bytes);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -1082,7 +1202,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                         e.printStackTrace();
                     }
                 }
-            }*/
+            }
         }
 
         public void WriteExifinterface(Image image, File file,int orientation){
@@ -1162,7 +1282,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Fragment parent = getParentFragment();
+            final android.support.v4.app.Fragment parent = getParentFragment();
             return new AlertDialog.Builder(getActivity())
                     .setMessage("Here")
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

@@ -1,6 +1,9 @@
 package com.example.myapplication.util;
 
-import android.support.v4.app.Fragment;
+
+import android.app.Fragment;
+
+
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
@@ -21,7 +24,7 @@ public class Pager extends FragmentStatePagerAdapter {
     private ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
 
     //Constructor to the class
-    public Pager(FragmentManager fm, int tabCount) {
+    public Pager(android.support.v4.app.FragmentManager fm, int tabCount) {
         super(fm);
         this.fragmentManager = fm;
         //Initializing tab count
@@ -34,7 +37,7 @@ public class Pager extends FragmentStatePagerAdapter {
 
     //Overriding method getItem
     @Override
-    public Fragment getItem(int position) {
+    public android.support.v4.app.Fragment getItem(int position) {
         //Returning the current tabs
         switch (position) {
             case 0:
