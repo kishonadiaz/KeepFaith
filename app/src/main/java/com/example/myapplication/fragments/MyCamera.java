@@ -36,6 +36,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -69,7 +70,9 @@ import android.widget.Toast;
 import com.example.myapplication.util.AutoFitTextureView;
 import com.example.myapplication.R;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -79,6 +82,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -93,6 +97,9 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
 
     private ImageButton photobtn,recordbtn,gifbtn;
     private ProgressBar progressBar;
+    boolean clicked = false;
+    private volatile Thread thread;
+
 
 
     private static final int SENSOR_ORIENTATION_DEFAULT_DEGRESS = 90;
@@ -469,14 +476,15 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         //view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = view.findViewById(R.id.texture);
         photobtn = view.findViewById(R.id.picture);
-        //recordbtn = view.findViewById(R.id.record);
 
-
-        //recordbtn.setOnClickListener(this);
         gifbtn = view.findViewById(R.id.gifbtn);
 
 
+
     }
+
+
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -490,39 +498,60 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         }
     }
 
+    private static int counter = 0;
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-
-                        String path = Environment.getDataDirectory().getAbsolutePath().toString() + "/mnt/sdcard/";
-                       mFile = new File(path);
-                        mFile.mkdir();
-
-
-
-
-                       if(mFile.exists()){
-
-                       }
-                       File Dir = new File("/sdcard/myappFolder/");
-                       Dir.mkdirs();
-
-                        //mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
-                    }
-                });
-            }
-        });
-        thread.start();
+//
+//        int rand =(int)Math.random();
+//
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                getActivity().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//
+//                        try {
+//                            String dir = Environment.getExternalStorageDirectory()+ File.separator+"sample";
+//                            File folder = new File(dir);
+//                            folder.mkdirs();
+//                            mFile = new File(folder+File.separator+"pic"+counter+""+rand+".jpeg");
+//                            mFile.createNewFile();
+//
+//                            //Log.e("ImageNumber",""+mFile.listFiles().length);
+//                            Toast.makeText(getActivity(), "counter "+counter, Toast.LENGTH_SHORT).show();
+//
+//                            File file = new File(dir);
+//                            for(File i : file.listFiles()){
+//                                if(i.isFile()){
+//                                    counter++;
+//                                }
+//                            }
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+////                        mFile = new File("/storage"+"/abc.jpeg");
+//
+////                        boolean isdir = mFile.mkdirs();
+////
+////
+////                            if(!mFile.exists()){
+////                                mFile.mkdir();
+////                                    Toast.makeText(getContext(), "Making file", Toast.LENGTH_SHORT).show();
+////                            }
+//
+//
+//
+//                        //mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+//                    }
+//                });
+//            }
+//        });
+//        thread.start();
         sensorEventListener2 = new SensorEventListener2() {
             @Override
             public void onFlushCompleted(Sensor sensor) {
@@ -1111,13 +1140,52 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         void onFragmentInteraction(Uri uri);
     }
 
-    boolean clicked = false;
-    private volatile Thread thread;
+
+
+    void onClickCreateFile(){
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        double rand = Math.random();
+                        String rands = String.valueOf(rand);
+                        String p = rands.replace(".","");
+
+                        try {
+                            String dir = Environment.getExternalStorageDirectory()+ File.separator+"sample";
+                            File folder = new File(dir);
+                            folder.mkdirs();
+                            mFile = new File(folder+File.separator+"pic"+counter+""+p+".jpeg");
+                            mFile.createNewFile();
+
+                            //Log.e("ImageNumber",""+mFile.listFiles().length);
+                            Toast.makeText(getActivity(), "counter "+p, Toast.LENGTH_SHORT).show();
+
+                            File file = new File(dir);
+                            for(File i : file.listFiles()){
+                                if(i.isFile()){
+                                    counter++;
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.picture:{
+                onClickCreateFile();
                 takePicture();
                 photobtn.setBackgroundResource(R.drawable.photopressedbtn);
                 thread = new Thread(new Runnable() {
@@ -1137,6 +1205,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                     }
                 });
                 thread.start();
+
                 break;
             }
         }
@@ -1162,12 +1231,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
          */
         private final File mFile;
         private final Activity activity;
+        private  BufferedOutputStream stream;
 
         private int mOrientation;
 
         ImageSaver(Activity activity,Image image, File file) {
             mImage = image;
             mFile = file;
+
             this.activity = activity;
 
         }
@@ -1176,25 +1247,24 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         public void run() {
 
 
-            if(Build.VERSION.SDK_INT < 24){
-
-            }else{
-
-            }
-
             ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
+
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             FileOutputStream output = null;
             try {
 
-                output = activity.openFileOutput(mFile.getName(),Context.MODE_APPEND);
+                output = new FileOutputStream(mFile);
+                stream = new BufferedOutputStream(new FileOutputStream(mFile));
+                stream.write(bytes);
+                stream.close();
+                output.close();
 
-                output.write(bytes);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 mImage.close();
+
                 if (null != output) {
                     try {
                         output.close();
@@ -1203,33 +1273,14 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
                     }
                 }
             }
-        }
-
-        public void WriteExifinterface(Image image, File file,int orientation){
-            Matrix matrix = new Matrix();
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            FileOutputStream outputStream = null;
-            try{
-                outputStream = new FileOutputStream(file);
-                outputStream.write(bytes);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                image.close();
-                if(null != outputStream){
-                    try{
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            MediaScannerConnection.scanFile(activity.getApplicationContext(), new String[]{mFile.getPath()}, new String[]{"image/jpeg"}, new MediaScannerConnection.OnScanCompletedListener() {
+                @Override
+                public void onScanCompleted(String s, Uri uri) {
+                    //Updated after created
                 }
-            }
-
+            });
         }
+
 
     }
 

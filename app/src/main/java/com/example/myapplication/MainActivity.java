@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -11,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,14 +21,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 
 
+import android.support.v13.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -87,6 +92,9 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
         } else {
             //initializeView();
         }
+
+        isWriteStoragePermissionGranted();
+        isReadStoragePermissionGranted();
 
         writePost writePost = (writePost) getSupportFragmentManager().findFragmentByTag("writepage");
         if(writePost !=null){
@@ -170,7 +178,71 @@ writePost.OnFragmentInteractionListener,fav.OnFragmentInteractionListener,prefer
 //    }
 
 
+    public  boolean isWriteStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("write","Permission is granted2");
+                return true;
+            } else {
 
+                Log.v("write","Permission is revoked2");
+                requestPermissions( new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("write","Permission is granted2");
+            return true;
+        }
+    }
+
+    public  boolean isReadStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("read","Permission is granted1");
+                return true;
+            } else {
+
+                Log.v("read","Permission is revoked1");
+                requestPermissions( new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 3);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("read","Permission is granted1");
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 2:
+                //Log.d(TAG, "External storage2");
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    //Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+                    //resume tasks needing this permission
+                   // downloadPdfFile();
+                }else{
+                   // progress.dismiss();
+                }
+                break;
+
+            case 3:
+                //Log.d(TAG, "External storage1");
+//                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+//                   // Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+//                    //resume tasks needing this permission
+//                    //SharePdfFile();
+//                }else{
+//                    //progress.dismiss();
+//                }
+                break;
+        }
+    }
 
     public  Pager getAdapter() {
         return adapter;
