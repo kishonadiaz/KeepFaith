@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    tools:context=".fragments.MyGallery"
-    android:clickable="true">
 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <GridView
         android:id="@+id/galleryGridView"
@@ -21,6 +17,8 @@
         android:verticalSpacing="5dp"
         android:gravity="center"
         android:stretchMode="columnWidth"
-        android:background="#ffffff" />
+        android:background="#ffffff">
+    </GridView>
 
-</FrameLayout>
+
+</LinearLayout>

@@ -477,7 +477,7 @@ public class MyCamera extends Fragment implements View.OnClickListener, Activity
         mTextureView = view.findViewById(R.id.texture);
         photobtn = view.findViewById(R.id.picture);
 
-        gifbtn = view.findViewById(R.id.gifbtn);
+        //gifbtn = view.findViewById(R.id.gifbtn);
 
 
 
